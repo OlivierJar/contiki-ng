@@ -65,9 +65,6 @@
 
 #include "contiki.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-
 /**
  * A timer.
  *
@@ -192,16 +189,12 @@ clock_time_t etimer_start_time(struct etimer *et);
 /**
  * \brief      Check if an event timer has expired.
  * \param et   A pointer to the event timer
- * \return     True if the timer has expired.
+ * \return     Non-zero if the timer has expired, zero otherwise.
  *
  *             This function tests if an event timer has expired and
  *             returns true or false depending on its status.
  */
-static inline bool
-etimer_expired(struct etimer *et)
-{
-  return et->p == PROCESS_NONE;
-}
+int etimer_expired(struct etimer *et);
 
 /**
  * \brief      Stop a pending event timer.

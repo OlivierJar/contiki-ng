@@ -61,7 +61,7 @@ PROCESS_THREAD(remote_rotation_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  int rotation;
+  uint16_t rotation;
 
   /* Use pin number not mask, for example if using the PA5 pin then use 5 */
   adc_sensors.configure(ANALOG_PHIDGET_ROTATION_1109, 5);

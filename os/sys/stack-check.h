@@ -54,8 +54,6 @@
 
 #include "contiki-conf.h"
 
-#include <stddef.h>
-
 /* Determine whether stack checking is supported depending on the plaform. */
 #ifdef PLATFORM_CONF_SUPPORTS_STACK_CHECK
 #if !PLATFORM_CONF_SUPPORTS_STACK_CHECK
@@ -106,9 +104,8 @@ void stack_check_init(void);
  *             In addition, this function can warn if the stack memory range
  *             has been completely used, but it cannot detect
  *             and warn if stack overflow has already taken place.
- *             Returns SIZE_MAX when an error occurs.
  */
-size_t stack_check_get_usage(void);
+int32_t stack_check_get_usage(void);
 
 /**
  * \brief      Calculate the maximal permitted stack usage.
@@ -116,7 +113,7 @@ size_t stack_check_get_usage(void);
  *             This function returns the number of bytes between the origin
  *             of the stack and the end of heap.
  */
-size_t stack_check_get_reserved_size(void);
+int32_t stack_check_get_reserved_size(void);
 
 /**
  * \brief      The origin point from which the stack grows (an optional #define)

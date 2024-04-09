@@ -40,7 +40,6 @@
 
 #include "contiki.h"
 #include "contiki-net.h"
-#include "sys/node-id.h"
 #include "services/deployment/deployment.h"
 
 #include <inttypes.h>

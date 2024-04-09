@@ -34,9 +34,6 @@
 # example and platform combinations that are marked as impossible in the Makefiles
 # by using PLATFORMS_EXCLUDE and PLATFORMS_ONLY variables.
 #
-# To build with gmake and 8 cores, invoke with:
-# MAKE="gmake" MAKEFLAGS="-j8" ./build.sh all
-#
 # This script can also clean all targets. To do that, run:
 # ./build.sh clean
 #
@@ -55,8 +52,6 @@ if [[ "$MAKEFILES" == "" ]]
 then
     MAKEFILES=`find $EXAMPLES_DIR -name Makefile`
 fi
-
-[[ "$MAKE" != "" ]] || MAKE="make"
 
 HELLO_WORLD=$EXAMPLES_DIR/hello-world
 
@@ -112,7 +107,7 @@ do
     # Detect all boards for the current platform by calling
     # make TARGET=$platform boards
     # in the hello-world dir.
-    BOARDS=`$MAKE -s -C $HELLO_WORLD TARGET=$platform boards \
+    BOARDS=`make -s -C $HELLO_WORLD TARGET=$platform boards \
             | grep -v "no boards" | rev | cut -f3- -d" " | rev`
 
     if [[ -z $BOARDS ]]
@@ -131,7 +126,7 @@ do
             example_dir=`dirname "$example"`
 
             # Clean it before building
-            $MAKE -C "$example_dir" TARGET=$platform BOARD=$board clean 2>&1 >/dev/null
+            make -C "$example_dir" TARGET=$platform BOARD=$board clean 2>&1 >/dev/null
             if [[ "$GOAL" == "clean" ]]
             then
                # do this just for the first board
@@ -139,8 +134,8 @@ do
             fi
 
             # Build the goal
-            $LOG_INFO "$MAKE -C \"$example_dir\" $MAKEFLAGS TARGET=$platform BOARD=$board $GOAL"
-            if $MAKE -C "$example_dir" $MAKEFLAGS TARGET=$platform BOARD=$board $GOAL >build.log 2>&1
+            $LOG_INFO "make -C \"$example_dir\" -j TARGET=$platform BOARD=$board $GOAL"
+            if make -C "$example_dir" -j TARGET=$platform BOARD=$board $GOAL >build.log 2>&1
             then
                 $LOG_INFO "..done"
                 $CAT_DEBUG build.log
@@ -162,7 +157,7 @@ do
             fi
 
             # Clean it after building
-            $MAKE -C "$example_dir" TARGET=$platform BOARD=$board clean 2>&1 >/dev/null
+            make -C "$example_dir" TARGET=$platform BOARD=$board clean 2>&1 >/dev/null
         done
     done
 done

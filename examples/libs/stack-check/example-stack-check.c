@@ -50,9 +50,8 @@ AUTOSTART_PROCESSES(&example_process);
 static void
 nested_function(void)
 {
-  printf("stack usage: %u permitted: %u\n",
-         (unsigned)stack_check_get_usage(),
-         (unsigned)stack_check_get_reserved_size());
+  printf("stack usage: %" PRId32 " permitted: %" PRId32 "\n",
+         stack_check_get_usage(), stack_check_get_reserved_size());
 }
 /*---------------------------------------------------------------------------*/
 static void

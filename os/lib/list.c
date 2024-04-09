@@ -53,6 +53,24 @@ struct list {
   struct list *next;
 };
 /*---------------------------------------------------------------------------*/
+void
+list_init(list_t list)
+{
+  *list = NULL;
+}
+/*---------------------------------------------------------------------------*/
+void *
+list_head(const_list_t list)
+{
+  return *list;
+}
+/*---------------------------------------------------------------------------*/
+void
+list_copy(list_t dest, const_list_t src)
+{
+  *dest = *src;
+}
+/*---------------------------------------------------------------------------*/
 void *
 list_tail(const_list_t list)
 {
@@ -179,6 +197,12 @@ list_insert(list_t list, void *previtem, void *newitem)
     ((struct list *)newitem)->next = ((struct list *)previtem)->next;
     ((struct list *)previtem)->next = newitem;
   }
+}
+/*---------------------------------------------------------------------------*/
+void *
+list_item_next(const void *item)
+{
+  return item == NULL ? NULL : ((struct list *)item)->next;
 }
 /*---------------------------------------------------------------------------*/
 bool

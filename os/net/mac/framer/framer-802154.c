@@ -182,9 +182,12 @@ framer_802154_setup_params(packetbuf_attr_t (*get_attr)(uint8_t type),
   }
 
   /* Suppress Source PAN ID and put Destination PAN ID by default */
-  params->fcf.panid_compression =
-    params->fcf.src_addr_mode == FRAME802154_SHORTADDRMODE ||
-    params->fcf.dest_addr_mode == FRAME802154_SHORTADDRMODE;
+  if(params->fcf.src_addr_mode == FRAME802154_SHORTADDRMODE ||
+     params->fcf.dest_addr_mode == FRAME802154_SHORTADDRMODE) {
+    params->fcf.panid_compression = 1;
+  } else {
+    params->fcf.panid_compression = 0;
+  }
 }
 /*---------------------------------------------------------------------------*/
 static int
@@ -228,6 +231,9 @@ parse(void)
     } else {
       packetbuf_set_attr(PACKETBUF_ATTR_MAC_SEQNO, 0xffff);
     }
+#if NETSTACK_CONF_WITH_RIME
+    packetbuf_set_attr(PACKETBUF_ATTR_PACKET_ID, frame.seq);
+#endif
 
 #if LLSEC802154_USES_AUX_HEADER
     if(frame.fcf.security_enabled) {

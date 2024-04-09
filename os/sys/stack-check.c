@@ -78,15 +78,8 @@ stack_check_init(void)
 
   /* Make this static to avoid destroying it in the while loop */
   static void *stack_top;
-#if defined __GNUC__ && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdangling-pointer"
-#endif
   /* Use address of this local variable as a boundary */
   stack_top = &p;
-#if defined __GNUC__ && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
 
   /* Note: this is expected to be called before the WDT is started! */
   p = &_stack;
@@ -100,7 +93,7 @@ stack_check_init(void)
 #endif
 }
 /*---------------------------------------------------------------------------*/
-size_t
+int32_t
 stack_check_get_usage(void)
 {
   uint8_t *p = &_stack;
@@ -125,13 +118,13 @@ stack_check_get_usage(void)
 
   if(p >= (uint8_t*)GET_STACK_ORIGIN()) {
     /* This means the stack is screwed. */
-    return SIZE_MAX;
+    return -1;
   }
 
   return (uint8_t *)GET_STACK_ORIGIN() - p;
 }
 /*---------------------------------------------------------------------------*/
-size_t
+int32_t
 stack_check_get_reserved_size(void)
 {
   return (uint8_t *)GET_STACK_ORIGIN() - &_stack;
@@ -148,15 +141,19 @@ PROCESS_THREAD(stack_check_process, ev, data)
   etimer_set(&et, STACK_CHECK_PERIOD);
 
   while(1) {
+    int32_t actual, allowed;
+
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 
-    size_t actual = stack_check_get_usage();
-    size_t allowed = stack_check_get_reserved_size();
-    if(actual > allowed) {
-      LOG_ERR("Check failed: %u vs. %u\n", (unsigned)actual,
-              (unsigned)allowed);
+    actual = stack_check_get_usage();
+    allowed = stack_check_get_reserved_size();
+    if(actual < 0 || allowed < 0) {
+      LOG_ERR("Check in inconsistent state: %" PRId32 " vs. %" PRId32 "\n",
+              actual, allowed);
+    } else if(actual > allowed) {
+      LOG_ERR("Check failed: %" PRId32 " vs. %" PRId32 "\n", actual, allowed);
     } else {
-      LOG_DBG("Check ok: %u vs. %u\n", (unsigned)actual, (unsigned)allowed);
+      LOG_DBG("Check ok: %" PRId32 " vs. %" PRId32 "\n", actual, allowed);
     }
 
     etimer_reset(&et);

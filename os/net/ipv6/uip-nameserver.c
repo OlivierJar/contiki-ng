@@ -86,7 +86,7 @@ static uint32_t serverlifetime;
  * Initialize the module variables
  */
 #if UIP_NAMESERVER_POOL_SIZE > 1
-static inline void
+static CC_INLINE void
 init(void)
 {
   list_init(dns);

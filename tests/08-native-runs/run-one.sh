@@ -2,15 +2,20 @@
 
 source ../utils.sh
 
-BIN_PREFIX=${TEST_PREFIX:-test}
 BASENAME=$(basename $1)
+BUILDLOG=$BASENAME.build.log
 
 cd ${1}
 test_init
 
-echo "-- Starting test $1"
+register_logfile $BUILDLOG
 
-for TEST in ./${BIN_PREFIX}*.native; do
+echo "-- Starting test $1"
+# Clean and build
+assert "clean" "make clean &> $BUILDLOG"
+assert "compile" "make -j >> $BUILDLOG 2>&1"
+
+for TEST in ./test*.native; do
   RUNLOG=$(basename $TEST .native).run.log
   register_logfile $RUNLOG
 

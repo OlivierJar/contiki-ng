@@ -46,7 +46,6 @@
 #endif
 
 /*---------------------------------------------------------------------------*/
-#if NULLFRAMER_PARSE_802154
 static int
 is_broadcast_addr(uint8_t mode, const uint8_t *addr)
 {
@@ -58,7 +57,6 @@ is_broadcast_addr(uint8_t mode, const uint8_t *addr)
   }
   return 1;
 }
-#endif /* NULLFRAMER_PARSE_802154 */
 /*---------------------------------------------------------------------------*/
 static int
 hdr_length(void)
@@ -90,6 +88,7 @@ parse(void)
     packetbuf_set_addr(PACKETBUF_ADDR_SENDER, (linkaddr_t *)&frame.src_addr);
     packetbuf_set_attr(PACKETBUF_ATTR_MAC_SEQNO, frame.seq);
     packetbuf_set_attr(PACKETBUF_ATTR_MAC_ACK, frame.fcf.ack_required);
+    return 0;
   }
 #endif
   return 0;

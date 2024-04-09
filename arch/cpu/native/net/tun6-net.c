@@ -70,6 +70,7 @@ static const char *config_ipaddr = "fd00::1/64";
 static char config_tundev[IFNAMSIZ + 1] = "tun0";
 
 
+#ifndef __CYGWIN__
 static int tunfd = -1;
 
 static int set_fd(fd_set *rset, fd_set *wset);
@@ -78,9 +79,12 @@ static const struct select_callback tun_select_callback = {
   set_fd,
   handle_fd
 };
+#endif /* __CYGWIN__ */
 
 static int ssystem(const char *fmt, ...)
      __attribute__((__format__ (__printf__, 1, 2)));
+static int
+ssystem(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
 
 int
 static ssystem(const char *fmt, ...)
@@ -99,38 +103,22 @@ static ssystem(const char *fmt, ...)
 static void
 cleanup(void)
 {
-#define TMPBUFSIZE 128
-  /* Called from signal handler, avoid unsafe functions. */
-  char buf[TMPBUFSIZE];
-  strcpy(buf, "ifconfig ");
-  /* Will not overflow, but null-terminate to avoid spurious warnings. */
-  buf[TMPBUFSIZE - 1] = '\0';
-  strncat(buf, config_tundev, TMPBUFSIZE - strlen(buf) - 1);
-  strncat(buf, " down", TMPBUFSIZE - strlen(buf) - 1);
-  system(buf);
+  ssystem("ifconfig %s down", config_tundev);
 #ifndef linux
-  system("sysctl -w net.ipv6.conf.all.forwarding=1");
+  ssystem("sysctl -w net.ipv6.conf.all.forwarding=1");
 #endif
-  strcpy(buf, "netstat -nr"
-         " | awk '{ if ($2 == \"");
-  buf[TMPBUFSIZE - 1] = '\0';
-  strncat(buf, config_tundev, TMPBUFSIZE - strlen(buf) - 1);
-  strncat(buf, "\") print \"route delete -net \"$1; }'"
-          " | sh", TMPBUFSIZE - strlen(buf) - 1);
-  system(buf);
+  ssystem("netstat -nr"
+	  " | awk '{ if ($2 == \"%s\") print \"route delete -net \"$1; }'"
+	  " | sh",
+	  config_tundev);
 }
 
 /*---------------------------------------------------------------------------*/
 static void CC_NORETURN
 sigcleanup(int signo)
 {
-  const char *prefix = "signal ";
-  const char *sig =
-    signo == SIGHUP ? "HUP\n" : signo == SIGTERM ? "TERM\n" : "INT\n";
-  write(fileno(stderr), prefix, strlen(prefix));
-  write(fileno(stderr), sig, strlen(sig));
-  cleanup();
-  _exit(0);
+  fprintf(stderr, "signal %d\n", signo);
+  exit(0);			/* exit(0) will call cleanup() */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -202,6 +190,18 @@ tun_alloc(char *dev, uint16_t devsize)
   return devopen(dev, O_RDWR);
 }
 #endif
+
+#ifdef __CYGWIN__
+/*wpcap process is used to connect to host interface */
+static void
+tun_init()
+{
+  setvbuf(stdout, NULL, _IOLBF, 0); /* Line buffered output. */
+}
+
+#else
+
+
 /*---------------------------------------------------------------------------*/
 static void
 tun_init()
@@ -304,6 +304,7 @@ handle_fd(fd_set *rset, fd_set *wset)
     tcpip_input();
   }
 }
+#endif /*  __CYGWIN_ */
 
 static void input(void)
 {

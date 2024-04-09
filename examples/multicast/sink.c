@@ -124,11 +124,6 @@ PROCESS_THREAD(mcast_sink_process, ev, data)
   count = 0;
 
   sink_conn = udp_new(NULL, UIP_HTONS(0), NULL);
-  if(sink_conn == NULL) {
-    PRINTF("No UDP connection available, exiting the process!\n");
-    PROCESS_EXIT();
-  }
-
   udp_bind(sink_conn, UIP_HTONS(MCAST_SINK_UDP_PORT));
 
   PRINTF("Listening: ");

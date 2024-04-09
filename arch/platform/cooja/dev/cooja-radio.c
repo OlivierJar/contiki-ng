@@ -58,6 +58,10 @@
 #define MAX_CHANNEL 26
 #define CCA_SS_THRESHOLD -95
 
+const struct simInterface radio_interface;
+
+
+
 /* The radio driver can provide Cooja these values.
  * But at present, Cooja ignores and overrides them.
  * */
@@ -196,6 +200,11 @@ doInterfaceActionsBeforeTick(void)
   if(simInSize > 0) {
     process_poll(&cooja_radio_process);
   }
+}
+/*---------------------------------------------------------------------------*/
+static void
+doInterfaceActionsAfterTick(void)
+{
 }
 /*---------------------------------------------------------------------------*/
 static int
@@ -483,4 +492,6 @@ const struct radio_driver cooja_radio_driver =
     set_object
 };
 /*---------------------------------------------------------------------------*/
-COOJA_PRE_TICK_ACTION(COOJA_RADIO_INIT_PRIO, doInterfaceActionsBeforeTick)
+SIM_INTERFACE(radio_interface,
+              doInterfaceActionsBeforeTick,
+              doInterfaceActionsAfterTick);

@@ -29,6 +29,9 @@
  */
 
 #include "dev/beep.h"
+#include "lib/simEnvChange.h"
+
+const struct simInterface beep_interface;
 
 // COOJA variables
 char simBeeped;
@@ -86,3 +89,18 @@ void beep_long(clock_time_t len)
 {
   simBeeped = 1;
 }
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsBeforeTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsAfterTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+
+SIM_INTERFACE(beep_interface,
+	      doInterfaceActionsBeforeTick,
+	      doInterfaceActionsAfterTick);

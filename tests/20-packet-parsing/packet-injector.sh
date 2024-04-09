@@ -1,6 +1,9 @@
 #!/bin/bash
 source ../utils.sh
 
+# Contiki directory
+CONTIKI=$1
+
 # Basic statistics for packet parsing results.
 SUCCEEDED=0
 FAILED=0
@@ -14,6 +17,8 @@ echo packet dir = $PACKET_DIR
 
 # Starting Contiki-NG native node
 echo "Starting native node"
+make -C $CODE_DIR TARGET=native
+
 for i in $PACKET_DIR/*
 do
   if [ -d "$i" ]; then
@@ -52,5 +57,15 @@ if [ $((TIMEDOUT + FAILED)) -gt 0 ]; then
   echo "Succeeded: " $SUCCEEDED
   echo "Timed out: " $TIMEDOUT
   echo "Failed   : " $FAILED
+
+  sleep 3
   exit 1
+else
+  printf "%-32s TEST OK\n" "$CODE-$TEST_PROTOCOL"
 fi
+
+sleep 3
+
+# We do not want Make to stop -> Return 0
+# The Makefile will check if a log contains FAIL at the end
+exit 0

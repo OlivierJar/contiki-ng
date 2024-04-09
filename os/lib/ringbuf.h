@@ -86,13 +86,8 @@ struct ringbuf {
  *             bytes.
  *
  */
-static inline void
-ringbuf_init(struct ringbuf *r, uint8_t *a, uint8_t size_power_of_two)
-{
-  r->data = a;
-  r->mask = size_power_of_two - 1;
-  r->put_ptr = r->get_ptr = 0;
-}
+void    ringbuf_init(struct ringbuf *r, uint8_t *a,
+		     uint8_t size_power_of_two);
 
 /**
  * \brief      Insert a byte into the ring buffer

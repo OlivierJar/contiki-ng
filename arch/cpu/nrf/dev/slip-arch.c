@@ -34,11 +34,7 @@
 #include "uarte-arch.h"
 #include "usb.h"
 /*---------------------------------------------------------------------------*/
-#ifdef PLAFTORM_SLIP_ARCH_CONF_USB
-#error Please use PLATFORM_SLIP_ARCH_CONF_USB instead of PLAFTORM_SLIP_ARCH_CONF_USB
-#endif
-/*---------------------------------------------------------------------------*/
-#if PLATFORM_SLIP_ARCH_CONF_USB
+#if PLAFTORM_SLIP_ARCH_CONF_USB
 #define set_input(fn) usb_set_input(fn)
 #define write_byte(b) usb_write((uint8_t *)&b, sizeof(uint8_t))
 #define flush()       usb_flush()

@@ -30,9 +30,11 @@
  */
 /*-----------------------------------------------------------------------------------*/
 #include "dev/leds.h"
+#include "lib/simEnvChange.h"
 /*-----------------------------------------------------------------------------------*/
 /* Variables required by the Cooja button interface */
 leds_mask_t simLedsValue = 0;
+const struct simInterface leds_interface;
 /*-----------------------------------------------------------------------------------*/
 static void
 led_change_cb(void)
@@ -47,6 +49,20 @@ void leds_arch_init() {
   gpio_hal_arch_register_pin_callback(COOJA_LED_RED_PIN, led_change_cb);
   gpio_hal_arch_register_pin_callback(COOJA_LED_YELLOW_PIN, led_change_cb);
 }
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsBeforeTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsAfterTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+SIM_INTERFACE(leds_interface,
+              doInterfaceActionsBeforeTick,
+              doInterfaceActionsAfterTick);
 /*---------------------------------------------------------------------------*/
 const leds_t leds_arch_leds[] = {
   {

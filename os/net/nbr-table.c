@@ -141,8 +141,10 @@ nbr_get_bit(const uint8_t *bitmap, const nbr_table_t *table,
             const nbr_table_item_t *item)
 {
   int item_index = index_from_item(table, item);
-  if(item_index != -1) {
+  if(table != NULL && item_index != -1) {
     return (bitmap[item_index] & (1 << table->index)) != 0;
+  } else {
+    return 0;
   }
   return 0;
 }
@@ -154,13 +156,15 @@ nbr_set_bit(uint8_t *bitmap, const nbr_table_t *table,
 {
   int item_index = index_from_item(table, item);
 
-  if(item_index != -1) {
+  if(table != NULL && item_index != -1) {
     if(value) {
       bitmap[item_index] |= 1 << table->index;
     } else {
       bitmap[item_index] &= ~(1 << table->index);
     }
     return 1;
+  } else {
+    return 0;
   }
   return 0;
 }

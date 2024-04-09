@@ -20,14 +20,11 @@ SREC_CAT = srec_cat
 
 CFLAGS += -mthumb -mabi=aapcs -mlittle-endian
 CFLAGS += -Wall
-CFLAGS += -std=c11
+CFLAGS += -std=c99
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
 ifeq ($(TRUSTZONE_SECURE_BUILD),1)
   CFLAGS += -mcmse
-  ifeq ($(CLANG),0)
-    CFLAGS += --specs=nosys.specs
-  endif
 endif
 ifeq ($(WERROR),1)
   CFLAGS += -Werror
@@ -51,7 +48,6 @@ LDFLAGS += -mthumb -mabi=aapcs -mlittle-endian
 
 # Disallow undefined symbols in object files.
 LDFLAGS += -Wl,-zdefs
-LDFLAGS += -Wl,--warn-common
 
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
@@ -88,8 +84,9 @@ OUT_HEX = $(BUILD_DIR_BOARD)/%.hex
 OUT_I16HEX = $(BUILD_DIR_BOARD)/%.i16hex
 OUT_BIN = $(BUILD_DIR_BOARD)/%.bin
 OUT_LST = $(BUILD_DIR_BOARD)/%.lst
+OUT_ELF = $(BUILD_DIR_BOARD)/%.elf
 
-$(OUT_I16HEX): $(BUILD_DIR_BOARD)/%.$(TARGET)
+$(OUT_I16HEX): $(OUT_ELF)
 	$(TRACE_OBJCOPY)
 	$(Q)$(OBJCOPY) -O ihex $< $@
 
@@ -97,10 +94,14 @@ $(OUT_HEX): $(OUT_I16HEX)
 	$(TRACE_SREC_CAT)
 	$(Q)$(SREC_CAT) $< -intel -o $@ -intel
 
-$(OUT_BIN): $(BUILD_DIR_BOARD)/%.$(TARGET)
+$(OUT_BIN): $(OUT_ELF)
 	$(TRACE_OBJCOPY)
 	$(Q)$(OBJCOPY) -O binary $(OBJCOPY_FLAGS) $< $@
 
-$(OUT_LST): $(BUILD_DIR_BOARD)/%.$(TARGET)
+$(OUT_LST): $(OUT_ELF)
 	$(TRACE_OBJDUMP)
 	$(Q)$(OBJDUMP) $(OBJDUMP_FLAGS) $< > $@
+
+$(BUILD_DIR_BOARD)/%.$(TARGET): $(OUT_ELF)
+	$(TRACE_CP)
+	$(Q)cp $< $@

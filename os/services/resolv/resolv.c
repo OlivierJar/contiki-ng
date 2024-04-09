@@ -1090,10 +1090,6 @@ PROCESS_THREAD(resolv_process, ev, data)
   LOG_DBG("Process started\n");
 
   resolv_conn = udp_new(NULL, 0, NULL);
-  if(resolv_conn == NULL) {
-    LOG_ERR("No UDP connection available, exiting the process!\n");
-    PROCESS_EXIT();
-  }
 
 #if RESOLV_SUPPORTS_MDNS
   LOG_DBG("Supports MDNS\n");

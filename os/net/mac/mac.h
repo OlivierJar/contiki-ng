@@ -54,13 +54,7 @@
 
 typedef void (* mac_callback_t)(void *ptr, int status, int transmissions);
 
-static inline void
-mac_call_sent_callback(mac_callback_t sent, void *ptr, int status, int num_tx)
-{
-  if(sent) {
-    sent(ptr, status, num_tx);
-  }
-}
+void mac_call_sent_callback(mac_callback_t sent, void *ptr, int status, int num_tx);
 
 /**
  * The structure of a MAC protocol driver in Contiki.

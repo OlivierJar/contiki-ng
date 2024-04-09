@@ -146,8 +146,7 @@ new_dio_interval(rpl_instance_t *instance)
   instance->dio_counter = 0;
 
   /* Schedule the timer. */
-  LOG_INFO("Scheduling DIO timer %lu ticks in future (Interval)\n",
-           (unsigned long)ticks);
+  LOG_INFO("Scheduling DIO timer %lu ticks in future (Interval)\n", ticks);
   ctimer_set(&instance->dio_timer, ticks, &handle_dio_timer, instance);
 
 #ifdef RPL_CALLBACK_NEW_DIO_INTERVAL
@@ -184,7 +183,7 @@ handle_dio_timer(void *ptr)
     }
     instance->dio_send = 0;
     LOG_DBG("Scheduling DIO timer %lu ticks in future (sent)\n",
-            (unsigned long)instance->dio_next_delay);
+            instance->dio_next_delay);
     ctimer_set(&instance->dio_timer, instance->dio_next_delay,
                handle_dio_timer, instance);
   } else {
@@ -330,6 +329,8 @@ schedule_dao(rpl_instance_t *instance, clock_time_t latency)
   if(rpl_get_mode() == RPL_MODE_FEATHER) {
     return;
   }
+
+  expiration_time = etimer_expiration_time(&instance->dao_timer.etimer);
 
   if(!etimer_expired(&instance->dao_timer.etimer)) {
     LOG_DBG("DAO timer already scheduled\n");

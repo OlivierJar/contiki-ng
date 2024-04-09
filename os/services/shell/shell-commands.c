@@ -161,8 +161,7 @@ PT_THREAD(cmd_ping(struct pt *pt, shell_output_func output, char *args))
     SHELL_OUTPUT(output, "Received ping reply from ");
     shell_output_6addr(output, &remote_addr);
     SHELL_OUTPUT(output, ", len %u, ttl %u, delay %lu ms\n",
-                 curr_ping_datalen, curr_ping_ttl,
-                 (unsigned long)((1000 * (clock_time() - timeout_timer.timer.start)) / CLOCK_SECOND));
+      curr_ping_datalen, curr_ping_ttl, (1000*(clock_time() - timeout_timer.timer.start))/CLOCK_SECOND);
   }
 
   PT_END(pt);
@@ -329,10 +328,6 @@ PT_THREAD(cmd_log(struct pt *pt, shell_output_func output, char *args))
   /* Get and parse argument: module name */
   SHELL_ARGS_NEXT(args, next_args);
   module = args;
-  if(module == NULL) {
-    SHELL_OUTPUT(output, "Module is not specified\n");
-    PT_EXIT(pt);
-  }
   prev_level = log_get_level(module);
   if(module == NULL || (strcmp("all", module) && prev_level == -1)) {
     SHELL_OUTPUT(output, "Invalid first argument: %s\n", module)
@@ -406,10 +401,6 @@ PT_THREAD(cmd_rpl_set_root(struct pt *pt, shell_output_func output, char *args))
 
   /* Get first arg (0/1) */
   SHELL_ARGS_NEXT(args, next_args);
-  if(args == NULL) {
-    SHELL_OUTPUT(output, "On-flag (0 or 1) is not specified\n");
-    PT_EXIT(pt);
-  }
 
   if(!strcmp(args, "1")) {
     is_on = 1;
@@ -475,6 +466,18 @@ PT_THREAD(cmd_rpl_local_repair(struct pt *pt, shell_output_func output, char *ar
 
   PT_END(pt);
 }
+/*---------------------------------------------------------------------------*/
+static
+PT_THREAD(cmd_rpl_dag_activate_relay(struct pt *pt, shell_output_func output, char *args))
+{
+  PT_BEGIN(pt);
+
+  SHELL_OUTPUT(output, "Triggering relay rutine\n");
+  NETSTACK_ROUTING.activate_relay("Shell");
+
+  PT_END(pt);
+}
+
 #endif /* UIP_CONF_IPV6_RPL */
 /*---------------------------------------------------------------------------*/
 static
@@ -556,10 +559,6 @@ PT_THREAD(cmd_tsch_set_coordinator(struct pt *pt, shell_output_func output, char
 
   /* Get first arg (0/1) */
   SHELL_ARGS_NEXT(args, next_args);
-  if(args == NULL) {
-    SHELL_OUTPUT(output, "On-flag (0 or 1) is not specified\n");
-    PT_EXIT(pt);
-  }
 
   if(!strcmp(args, "1")) {
     is_on = 1;
@@ -621,7 +620,7 @@ PT_THREAD(cmd_tsch_status(struct pt *pt, shell_output_func output, char *args))
       SHELL_OUTPUT(output, "none\n");
     }
     SHELL_OUTPUT(output, "-- Last synchronized: %lu seconds ago\n",
-                 (unsigned long)((clock_time() - tsch_last_sync_time) / CLOCK_SECOND));
+                 (clock_time() - tsch_last_sync_time) / CLOCK_SECOND);
     SHELL_OUTPUT(output, "-- Drift w.r.t. coordinator: %ld ppm\n",
                  tsch_adaptive_timesync_get_drift_ppm());
     SHELL_OUTPUT(output, "-- Network uptime: %lu seconds\n",
@@ -754,7 +753,7 @@ http_callback(struct http_socket *s, void *ptr,
 {
   if(e == HTTP_SOCKET_ERR) {
     printf("HTTP socket error\n");
-  } else if(e == HTTP_SOCKET_TIMEDOUT) {
+  } else if(e == HTTP_SOCKET_TIMEDOUT) {local_repair
     printf("HTTP socket error: timed out\n");
   } else if(e == HTTP_SOCKET_ABORTED) {
     printf("HTTP socket error: aborted\n");
@@ -917,10 +916,6 @@ PT_THREAD(cmd_llsec_setkey(struct pt *pt, shell_output_func output, char *args))
   } else {
     int key;
     SHELL_ARGS_NEXT(args, next_args);
-    if(args == NULL) {
-      SHELL_OUTPUT(output, "Key index is not specified\n");
-      PT_EXIT(pt);
-    }
     key = atoi(args);
     if(key < 0) {
       SHELL_OUTPUT(output, "Illegal LLSEC Key index %d\n", key);
@@ -1013,6 +1008,9 @@ const struct shell_command_t builtin_shell_commands[] = {
 #if UIP_CONF_IPV6_RPL
   { "rpl-set-root",         cmd_rpl_set_root,         "'> rpl-set-root 0/1 [prefix]': Sets node as root (1) or not (0). A /64 prefix can be optionally specified." },
   { "rpl-local-repair",     cmd_rpl_local_repair,     "'> rpl-local-repair': Triggers a RPL local repair" },
+  { "rpl-dag-activate-relay",     cmd_rpl_dag_activate_relay,     "'> rpl-activate-relay': Triggers a RPL relay node check" },
+
+
 #if ROUTING_CONF_RPL_LITE
   { "rpl-refresh-routes",   cmd_rpl_refresh_routes,   "'> rpl-refresh-routes': Refreshes all routes through a DTSN increment" },
   { "rpl-status",           cmd_rpl_status,           "'> rpl-status': Shows a summary of the current RPL state" },

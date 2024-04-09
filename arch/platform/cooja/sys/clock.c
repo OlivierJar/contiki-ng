@@ -30,6 +30,9 @@
 
 #include "contiki.h"
 #include "sys/clock.h"
+#include "lib/simEnvChange.h"
+
+const struct simInterface clock_interface;
 
 // COOJA variables
 clock_time_t simCurrentTime;
@@ -56,3 +59,18 @@ void
 clock_delay(unsigned int delay_time)
 {
 }
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsBeforeTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+static void
+doInterfaceActionsAfterTick(void)
+{
+}
+/*-----------------------------------------------------------------------------------*/
+
+SIM_INTERFACE(clock_interface,
+	      doInterfaceActionsBeforeTick,
+	      doInterfaceActionsAfterTick);

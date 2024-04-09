@@ -36,7 +36,9 @@ echo "Closing nbr"
 kill $MPID
 
 if [ $STATUS -eq 0 ]; then
+  printf "%-32s TEST OK\n" "$BASENAME" > $BASENAME.testlog
   exit 0
 else
+  printf "%-32s TEST FAIL\n" "$BASENAME" > $BASENAME.testlog
   exit 1
 fi

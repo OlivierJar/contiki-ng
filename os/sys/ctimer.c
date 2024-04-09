@@ -95,6 +95,12 @@ ctimer_init(void)
   process_start(&ctimer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
+void
+ctimer_set(struct ctimer *c, clock_time_t t,
+           void (*f)(void *), void *ptr)
+{
+  ctimer_set_with_process(c, t, f, ptr, PROCESS_CURRENT());
+}
 /*---------------------------------------------------------------------------*/
 void
 ctimer_set_with_process(struct ctimer *c, clock_time_t t,
@@ -151,7 +157,7 @@ ctimer_stop(struct ctimer *c)
   list_remove(ctimer_list, c);
 }
 /*---------------------------------------------------------------------------*/
-bool
+int
 ctimer_expired(struct ctimer *c)
 {
   struct ctimer *t;
@@ -160,10 +166,10 @@ ctimer_expired(struct ctimer *c)
   }
   for(t = list_head(ctimer_list); t != NULL; t = t->next) {
     if(t == c) {
-      return false;
+      return 0;
     }
   }
-  return true;
+  return 1;
 }
 /*---------------------------------------------------------------------------*/
 /** @} */

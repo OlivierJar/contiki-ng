@@ -68,21 +68,11 @@ struct index_record {
 
 #define ROW_XOR 0xf6U
 
-static bool
-merge_strings(char *dest, size_t dest_size, char *prefix, char *suffix)
+static void
+merge_strings(char *dest, char *prefix, char *suffix)
 {
-  size_t prefix_len = strlen(prefix);
-  size_t suffix_len = strlen(suffix);
-
-  if(dest_size < prefix_len + suffix_len + 1) {
-    return false;
-  }
-
-  memcpy(dest, prefix, prefix_len);
-  memcpy(dest + prefix_len, suffix, suffix_len);
-  dest[prefix_len + suffix_len] = '\0';
-
-  return true;
+  strcpy(dest, prefix);
+  strcat(dest, suffix);
 }
 
 char *
@@ -187,7 +177,6 @@ storage_get_relation(relation_t *rel, char *name)
     }
   }
 
-  (void)i;
   PRINTF("DB: Read %d attributes\n", i);
 
   cfs_close(fd);
@@ -344,15 +333,13 @@ error:
 db_result_t
 storage_get_index(index_t *index, relation_t *rel, attribute_t *attr)
 {
-  char filename[INDEX_NAME_LENGTH + 1];
+  char filename[INDEX_NAME_LENGTH];
   int fd;
   int r;
   struct index_record record;
   db_result_t result;
 
-  if(!merge_strings(filename, sizeof(filename), rel->name, INDEX_NAME_SUFFIX)) {
-    return DB_NAME_ERROR;
-  }
+  merge_strings(filename, rel->name, INDEX_NAME_SUFFIX);
 
   fd = cfs_open(filename, CFS_READ);
   if(fd < 0) {
@@ -382,16 +369,13 @@ storage_get_index(index_t *index, relation_t *rel, attribute_t *attr)
 db_result_t
 storage_put_index(index_t *index)
 {
-  char filename[INDEX_NAME_LENGTH + 1];
+  char filename[INDEX_NAME_LENGTH];
   int fd;
   int r;
   struct index_record record;
   db_result_t result;
 
-  if(!merge_strings(filename, sizeof(filename), index->rel->name,
-                    INDEX_NAME_SUFFIX)) {
-    return DB_NAME_ERROR;
-  }
+  merge_strings(filename, index->rel->name, INDEX_NAME_SUFFIX);
 
   fd = cfs_open(filename, CFS_WRITE | CFS_APPEND);
   if(fd < 0) {

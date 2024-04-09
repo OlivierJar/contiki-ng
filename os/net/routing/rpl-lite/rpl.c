@@ -110,8 +110,7 @@ rpl_link_callback(const linkaddr_t *addr, int status, int numtx)
       Updating from here is unsafe; postpone */
       LOG_INFO("packet sent to ");
       LOG_INFO_LLADDR(addr);
-      LOG_INFO_(", status %u, tx %u, new link metric %u\n",
-                status, numtx, rpl_neighbor_get_link_metric(nbr));
+      LOG_INFO_(", status %u, tx %u, new link metric %u\n", status, numtx, rpl_neighbor_get_link_metric(nbr));
       rpl_timers_schedule_state_update();
     }
   }
@@ -244,6 +243,7 @@ rpl_get_leaf_only(void)
   return rpl_leaf_only;
 }
 /*---------------------------------------------------------------------------*/
+/*
 const struct routing_driver rpl_lite_driver = {
   "RPL Lite",
   init,
@@ -267,6 +267,36 @@ const struct routing_driver rpl_lite_driver = {
   drop_route,
   rpl_get_leaf_only,
 };
+*/
 /*---------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------*/
+const struct routing_driver rpl_lite_driver_ext = {
+  "RPL Lite + movable node extension",
+  init,
+  rpl_dag_root_set_prefix,
+  rpl_dag_root_start,
+  rpl_dag_root_is_root,
+  rpl_dag_get_root_ipaddr,
+  get_sr_node_ipaddr,
+  rpl_dag_poison_and_leave,
+  rpl_has_joined,
+  rpl_is_reachable,
+  rpl_global_repair,
+  rpl_local_repair,
+  rpl_dag_activate_relay,
+  rpl_ext_header_remove,
+  rpl_ext_header_update,
+  rpl_ext_header_hbh_update,
+  rpl_ext_header_srh_update,
+  rpl_ext_header_srh_get_next_hop,
+  rpl_link_callback,
+  neighbor_state_changed,
+  drop_route,
+  rpl_get_leaf_only,
+  rpl_udp_parent_RSSI,
+};
+/*---------------------------------------------------------------------------*/
+
 
 /** @}*/

@@ -31,17 +31,17 @@
 #include "net/routing/routing.h"
 #include "net/netstack.h"
 #include "net/ipv6/simple-udp.h"
-
+#include "examples/rpl-udp/rpl_relay.h"
 #include "sys/log.h"
 #define LOG_MODULE "App"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
 #define WITH_SERVER_REPLY  1
-#define UDP_CLIENT_PORT	8765
-#define UDP_SERVER_PORT	5678
+#define UDP_CLIENT_PORT	2222
+#define UDP_SERVER_PORT	1111
 
 static struct simple_udp_connection udp_conn;
-
+int16_t relay_RSSI=1;
 PROCESS(udp_server_process, "UDP server");
 AUTOSTART_PROCESSES(&udp_server_process);
 /*---------------------------------------------------------------------------*/
@@ -54,20 +54,38 @@ udp_rx_callback(struct simple_udp_connection *c,
          const uint8_t *data,
          uint16_t datalen)
 {
-  LOG_INFO("Received request '%.*s' from ", datalen, (char *) data);
-  LOG_INFO_6ADDR(sender_addr);
-  LOG_INFO_("\n");
-#if WITH_SERVER_REPLY
-  /* send back the same string to the client as an echo reply */
-  LOG_INFO("Sending response.\n");
-  simple_udp_sendto(&udp_conn, data, datalen, sender_addr);
-#endif /* WITH_SERVER_REPLY */
+
+
+    if(*data==1 ){
+        relay_RSSI=*data;
+        LOG_INFO("Recived RSSI: %i\n",relay_RSSI);
+
+        simple_udp_sendto(&udp_conn, &relay_RSSI, sizeof(relay_RSSI), sender_addr);
+    }
+    else if (*data==0){
+        simple_udp_sendto(&udp_conn, &relay_RSSI, sizeof(relay_RSSI), sender_addr);
+
+    }
+    else{
+        relay_RSSI=*data | -256;
+        LOG_INFO("Recived RSSI: %i\n",relay_RSSI);
+
+        simple_udp_sendto(&udp_conn, &relay_RSSI, sizeof(relay_RSSI), sender_addr);
+
+    }
+
+
 }
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
 {
   PROCESS_BEGIN();
-
+  /* Set the transmission power level to -12 dBm */
+  radio_value_t power_level;
+  NETSTACK_RADIO.get_value(RADIO_PARAM_TXPOWER, &power_level);
+  radio_value_t new_power_level=power_level +(radio_value_t) RADIO_OFFSET;
+  NETSTACK_RADIO.set_value(RADIO_PARAM_TXPOWER, new_power_level);
   /* Initialize DAG root */
   NETSTACK_ROUTING.root_start();
 

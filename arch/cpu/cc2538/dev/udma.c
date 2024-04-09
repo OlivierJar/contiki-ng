@@ -39,7 +39,6 @@
 #include "dev/udma.h"
 #include "dev/nvic.h"
 #include "reg.h"
-#include "dev/cc2538-dev.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -53,13 +52,6 @@ struct channel_ctrl {
 
 static volatile struct channel_ctrl channel_config[UDMA_CONF_MAX_CHANNEL + 1]
   __attribute__ ((section(".udma_channel_control_table")));
-
-/*---------------------------------------------------------------------------*/
-bool
-udma_is_valid_source_address(uintptr_t source_address)
-{
-  return source_address >= CC2538_DEV_RLSRAM_ADDR;
-}
 /*---------------------------------------------------------------------------*/
 void
 udma_init()

@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  *
  * This file is part of the Contiki operating system.
+ *
+ * $Id: netstack.h,v 1.6 2010/10/03 20:37:32 adamdunkels Exp $
  */
 
 /**
@@ -47,7 +49,7 @@
 #define NETSTACK_ROUTING NETSTACK_CONF_ROUTING
 #else /* NETSTACK_CONF_ROUTING */
 #if ROUTING_CONF_RPL_LITE
-#define NETSTACK_ROUTING rpl_lite_driver
+#define NETSTACK_ROUTING rpl_lite_driver_ext
 #elif ROUTING_CONF_RPL_CLASSIC
 #define NETSTACK_ROUTING rpl_classic_driver
 #elif ROUTING_CONF_NULLROUTING
@@ -131,13 +133,7 @@ extern const struct mac_driver NETSTACK_MAC;
 extern const struct radio_driver NETSTACK_RADIO;
 extern const struct framer NETSTACK_FRAMER;
 
-static inline void
-netstack_init(void)
-{
-  NETSTACK_RADIO.init();
-  NETSTACK_MAC.init();
-  NETSTACK_NETWORK.init();
-}
+void netstack_init(void);
 
 /* Netstack ip_packet_processor - for implementing packet filters, firewalls,
    debuggin info, etc */

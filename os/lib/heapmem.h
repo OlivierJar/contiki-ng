@@ -38,7 +38,9 @@
  * The heapmem module is a dynamic heap memory allocator similar to
  * malloc() in standard C. The heap memory is managed in a block of
  * static memory, whose size is determined at compile-time by setting
- * the HEAPMEM_CONF_ARENA_SIZE parameter.
+ * HEAPMEM_CONF_ARENA_SIZE parameter. By default, the heap memory is
+ * only 1 bytes, which entails that this parameter must be set
+ * explicitly in order to be possible to use this module.
  *
  * Each allocated memory object is referred to as a "chunk". The
  * allocator manages free chunks in a double-linked list. While this
@@ -50,15 +52,11 @@
  * heapmem_realloc(), because the chunk structure immediately precedes
  * the memory of the chunk.
  *
- * \note If the HEAPMEM_CONF_ARENA_SIZE parameter is not set, the
- * heapmem implementation will not be compiled, which could lead to a
- * linking error if other modules call heapmem functions.
- *
  * \note This module does not contain a corresponding function to the
  *       standard C function calloc().
  *
  * \note Dynamic memory should be used carefully on
- *       memory-constrained embedded systems, because fragmentation
+ *       memory-constrained, embedded systems, because fragmentation
  *       may be induced through various allocation/deallocation
  *       patterns, and no guarantees are given regarding the
  *       availability of memory.
@@ -89,7 +87,6 @@ typedef struct heapmem_stats {
   size_t overhead;
   size_t available;
   size_t footprint;
-  size_t max_footprint;
   size_t chunks;
 } heapmem_stats_t;
 /*****************************************************************************/
@@ -101,35 +98,27 @@ typedef uint8_t heapmem_zone_t;
 
 /**
  * \brief      Register a zone with a reserved subdivision of the heap.
- * \param name A string containing the name of the zone.
+ * \param name A pointer to a chunk that has been allocated using
+ *             heapmem_alloc() or heapmem_realloc().
  * \param zone_size The number of bytes to reserve for the zone.
- * \return     A zone ID if the allocation succeeds, or
- *             HEAPMEM_ZONE_INVALID if it fails.
+ * \return     A zone ID if the allocation succeeds, or HEAPMEM_ZONE_INVALID if it fails.
  */
 heapmem_zone_t heapmem_zone_register(const char *name, size_t zone_size);
 /*****************************************************************************/
 
 #if HEAPMEM_DEBUG
 
-#define heapmem_alloc(size) \
-  heapmem_zone_alloc_debug(HEAPMEM_ZONE_GENERAL, (size), __FILE__, __LINE__)
-#define heapmem_zone_alloc(zone, size) \
-  heapmem_zone_alloc_debug((zone), (size), __FILE__, __LINE__)
-#define heapmem_realloc(ptr, size) \
-  heapmem_realloc_debug((ptr), (size), __FILE__, __LINE__)
-#define heapmem_calloc(nmemb, size) \
-  heapmem_calloc_debug((nmemb), (size), __FILE__, __LINE__)
-#define heapmem_free(ptr) \
-  heapmem_free_debug((ptr), __FILE__, __LINE__)
+#define heapmem_alloc(size) heapmem_zone_alloc_debug(HEAPMEM_ZONE_GENERAL, (size), __FILE__, __LINE__)
+#define heapmem_zone_alloc(size) heapmem_zone_alloc_debug((zone), (size), __FILE__, __LINE__)
+#define heapmem_realloc(ptr, size) heapmem_realloc_debug((ptr), (size), __FILE__, __LINE__)
+#define heapmem_free(ptr) heapmem_free_debug((ptr), __FILE__, __LINE__)
 
 void *heapmem_alloc_debug(size_t size,
 			  const char *file, const unsigned line);
-void *heapmem_zone_alloc_debug(heapmem_zone_t zone, size_t size,
+void *heapmem_zone_alloc_debug(heapmem_zone_t, size_t size,
 			  const char *file, const unsigned line);
 void *heapmem_realloc_debug(void *ptr, size_t size,
 			    const char *file, const unsigned line);
-void *heapmem_calloc_debug(size_t nmemb, size_t size,
-			   const char *file, const unsigned line);
 bool heapmem_free_debug(void *ptr,
 			const char *file, const unsigned line);
 
@@ -144,6 +133,7 @@ bool heapmem_free_debug(void *ptr,
  * \sa         heapmem_realloc
  * \sa         heapmem_free
  */
+
 #define heapmem_alloc(size) heapmem_zone_alloc(HEAPMEM_ZONE_GENERAL, (size))
 
 /**
@@ -161,7 +151,7 @@ void *heapmem_zone_alloc(heapmem_zone_t zone, size_t size);
 /**
  * \brief      Reallocate a chunk of memory in the heap.
  * \param ptr  A pointer to a chunk that has been allocated using
- *             heapmem_alloc(), heapmem_calloc(), or heapmem_realloc().
+ *             heapmem_alloc() or heapmem_realloc().
  * \param size The number of bytes to allocate.
  * \return     A pointer to the allocated memory chunk,
  *             or NULL if the allocation failed.
@@ -171,36 +161,24 @@ void *heapmem_zone_alloc(heapmem_zone_t zone, size_t size);
  *       the chunk and returns NULL.
  *
  * \sa         heapmem_alloc
- * \sa         heapmem_calloc
  * \sa         heapmem_free
  */
-void *heapmem_realloc(void *ptr, size_t size);
 
-/**
- * \brief       Allocate memory for a zero-initialized array.
- * \param nmemb The number of elements to allocate.
- * \param size  The size of each element.
- * \return      A pointer to the allocated memory,
- *              or NULL if the allocation failed.
- *
- * \sa         heapmem_alloc
- * \sa         heapmem_free
- */
-void *heapmem_calloc(size_t nmemb, size_t size);
+void *heapmem_realloc(void *ptr, size_t size);
 
 /**
  * \brief      Deallocate a chunk of memory.
  * \param ptr  A pointer to a chunk that has been allocated using
- *             heapmem_alloc(), heapmem_calloc(), or heapmem_realloc().
+ *             heapmem_alloc() or heapmem_realloc().
  * \return     A boolean indicating whether the memory could be deallocated.
  *
  * \note If ptr is NULL, this function will return immediately without
- *       performing any action.
+ *       without performing any action.
  *
  * \sa         heapmem_alloc
- * \sa         heapmem_calloc
  * \sa         heapmem_realloc
  */
+
 bool heapmem_free(void *ptr);
 
 #endif /* HEAPMEM_DEBUG */
@@ -216,21 +194,16 @@ bool heapmem_free(void *ptr);
  * the amount of memory allocated, overhead used for memory management,
  * and the number of chunks allocated. By using this information, developers
  * can tune their software to use the heapmem allocator more efficiently.
+ *
  */
-void heapmem_stats(heapmem_stats_t *stats);
 
-/**
- * \brief              Print debugging information for the heap memory
- *                     management.
- * \param print_chunks Determines whether to print information about
- *                     all allocated chunks.
- */
-void heapmem_print_debug_info(bool print_chunks);
+void heapmem_stats(heapmem_stats_t *stats);
 
 /**
  * \brief       Obtain the minimum alignment of allocated addresses.
  * \return      The alignment value, which is a power of two.
  */
+
 size_t heapmem_alignment(void);
 
 #endif /* !HEAPMEM_H */

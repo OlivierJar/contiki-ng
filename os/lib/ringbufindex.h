@@ -93,43 +93,27 @@ int ringbufindex_peek_get(const struct ringbufindex *r);
  * \param r Pinter to ringbufindex
  * \return The size of the ring buffer
  */
-static inline int
-ringbufindex_size(const struct ringbufindex *r)
-{
-  return r->mask + 1;
-}
+int ringbufindex_size(const struct ringbufindex *r);
 
 /**
  * \brief Return the number of elements currently in the ring buffer.
  * \param r Pinter to ringbufindex
  * \return The number of elements in the ring buffer
  */
-static inline int
-ringbufindex_elements(const struct ringbufindex *r)
-{
-  return (r->put_ptr - r->get_ptr) & r->mask;
-}
+int ringbufindex_elements(const struct ringbufindex *r);
 
 /**
  * \brief Is the ring buffer full?
  * \retval 0 Not full
  * \retval 1 Full
  */
-static inline int
-ringbufindex_full(const struct ringbufindex *r)
-{
-  return ((r->put_ptr - r->get_ptr) & r->mask) == r->mask;
-}
+int ringbufindex_full(const struct ringbufindex *r);
 
 /**
  * \brief Is the ring buffer empty?
  * \retval 0 Not empty
  * \retval 1 Empty
  */
-static inline int
-ringbufindex_empty(const struct ringbufindex *r)
-{
-  return ringbufindex_elements(r) == 0;
-}
+int ringbufindex_empty(const struct ringbufindex *r);
 
 #endif /* RINGBUFINDEX_H_ */

@@ -31,6 +31,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include "lib/simEnvChange.h"
 #include "cfs/cfs.h"
 
 #define FLAG_FILE_CLOSED 0
@@ -44,6 +45,8 @@ struct filestate {
 };
 
 static struct filestate file;
+
+const struct simInterface cfs_interface;
 
 // COOJA variables
 #define CFS_BUF_SIZE 4000 /* Configure CFS size here and in ContikiCFS.java */
@@ -166,3 +169,18 @@ void
 cfs_closedir(struct cfs_dir *p)
 {
 }
+/*---------------------------------------------------------------------------*/
+static void
+doInterfaceActionsBeforeTick(void)
+{
+}
+/*---------------------------------------------------------------------------*/
+static void
+doInterfaceActionsAfterTick(void)
+{
+}
+/*---------------------------------------------------------------------------*/
+SIM_INTERFACE(cfs_interface,
+	      doInterfaceActionsBeforeTick,
+	      doInterfaceActionsAfterTick);
+/*---------------------------------------------------------------------------*/

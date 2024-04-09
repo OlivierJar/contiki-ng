@@ -66,7 +66,7 @@ function register_last_bg_cmd( )
 function kill_bg( )
 {
     PID=$1
-    CMD=$(ps -p $PID -o command=)
+    CMD=$(ps -p $PID -o cmd=)
     SUDO=
     TOKILL=$PID
     SIGNAL=${2:-9}

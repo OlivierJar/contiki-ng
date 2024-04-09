@@ -846,8 +846,7 @@ PROCESS_THREAD(rf_sched_process, ev, data)
       rf_start_recalib_timer = false;
       if(rf_is_on) {
         clock_time_t interval = synth_recal_interval();
-        LOG_INFO("Starting synth re-calibration timer, next timeout %lu\n",
-                 (unsigned long)interval);
+        LOG_INFO("Starting synth re-calibration timer, next timeout %lu\n", interval);
         etimer_set(&synth_recal_timer, interval);
       }
     }
@@ -886,8 +885,8 @@ PROCESS_THREAD(rf_sched_process, ev, data)
        etimer_expired(&synth_recal_timer)) {
       if(rf_is_on) {
         clock_time_t interval = synth_recal_interval();
-        LOG_DBG("Re-calibrate synth, next interval %lu\n",
-                (unsigned long)interval);
+        LOG_DBG("Re-calibrate synth, next interval %lu\n", interval);
+
         netstack_sched_fs();
         etimer_set(&synth_recal_timer, interval);
       }

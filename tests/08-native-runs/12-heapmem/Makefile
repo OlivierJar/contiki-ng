@@ -1,5 +1,4 @@
-CONTIKI_PROJECT = test-heapmem
-all: $(CONTIKI_PROJECT)
+all: test-heapmem
 
 TARGET ?= native
 

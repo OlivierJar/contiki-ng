@@ -31,6 +31,7 @@
 #include "dev/vib-sensor.h"
 #include "lib/simEnvChange.h"
 
+const struct simInterface vib_interface;
 const struct sensors_sensor vib_sensor;
 
 // COOJA variables
@@ -82,7 +83,15 @@ doInterfaceActionsBeforeTick(void)
   }
 }
 /*---------------------------------------------------------------------------*/
-COOJA_PRE_TICK_ACTION(COOJA_VIB_INIT_PRIO, doInterfaceActionsBeforeTick);
+static void
+doInterfaceActionsAfterTick(void)
+{
+}
+/*---------------------------------------------------------------------------*/
+
+SIM_INTERFACE(vib_interface,
+	doInterfaceActionsBeforeTick,
+	doInterfaceActionsAfterTick);
 
 SENSORS_SENSOR(vib_sensor, VIB_SENSOR,
                value, configure, status);

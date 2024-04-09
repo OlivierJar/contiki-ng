@@ -150,26 +150,17 @@
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/
-
-/* Deprecation warning for UART config */
-#ifdef CC26XX_UART_CONF_ENABLE
-#error CC26XX_UART_CONF_ENABLE is deprecated. Use TI_UART_CONF_ENABLE.
-#endif
-#ifdef CC26XX_UART_CONF_BAUD_RATE
-#error CC26XX_UART_CONF_BAUD_RATE is deprecated. Use TI_UART_CONF_BAUD_RATE.
-#endif
-
 /**
  * \name Character I/O Configuration
  *
  * @{
  */
-#ifndef TI_UART_CONF_ENABLE
-#define TI_UART_CONF_ENABLE                1 /**< Enable/Disable UART I/O */
+#ifndef CC26XX_UART_CONF_ENABLE
+#define CC26XX_UART_CONF_ENABLE            1 /**< Enable/Disable UART I/O */
 #endif
 
-#ifndef TI_UART_CONF_BAUD_RATE
-#define TI_UART_CONF_BAUD_RATE        115200 /**< Default UART0 baud rate */
+#ifndef CC26XX_UART_CONF_BAUD_RATE
+#define CC26XX_UART_CONF_BAUD_RATE    115200 /**< Default UART0 baud rate */
 #endif
 
 /* Enable I/O over the Debugger Devpack - Only relevant for the SensorTag */
@@ -193,12 +184,12 @@
  * \name JTAG interface configuration
  *
  * Enable/Disable the JTAG DAP and TAP interfaces on the chip.
- * Setting this to 1 will disable access to the debug interface
+ * Setting this to 0 will disable access to the debug interface
  * to secure deployed images.
  * @{
  */
-#ifndef CCFG_CONF_JTAG_INTERFACE_DISABLE
-#define CCFG_CONF_JTAG_INTERFACE_DISABLE             0
+#ifndef CCXXWARE_CONF_JTAG_INTERFACE_ENABLE
+#define CCXXWARE_CONF_JTAG_INTERFACE_ENABLE              1
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/
@@ -213,11 +204,11 @@
 
 /* Backward compatibility */
 #ifdef ROM_BOOTLOADER_ENABLE
-#define CCFG_CONF_ROM_BOOTLOADER_ENABLE ROM_BOOTLOADER_ENABLE
+#define CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE ROM_BOOTLOADER_ENABLE
 #endif
 
-#ifndef CCFG_CONF_ROM_BOOTLOADER_ENABLE
-#define CCFG_CONF_ROM_BOOTLOADER_ENABLE              1
+#ifndef CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE
+#define CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE              1
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/
