@@ -14,6 +14,8 @@
 #define TSCH_CONF_ASSOCIATION_POLL_FREQUENCY 1000
 
 
+//Old Config
+/*
 #define LOG_CONF_LEVEL_TSCH                        LOG_LEVEL_W
 #define LOG_CONF_LEVEL_RPL                         LOG_LEVEL_WARN
 #define LOG_CONF_LEVEL_TCPIP                       LOG_LEVEL_WARN
@@ -21,6 +23,18 @@
 #define LOG_CONF_LEVEL_6LOWPAN                     LOG_LEVEL_WARN
 #define LOG_CONF_LEVEL_MAC                         LOG_LEVEL_WARN
 #define LOG_CONF_LEVEL_FRAMER                      LOG_LEVEL_WARN
+#define TSCH_LOG_CONF_PER_SLOT                     0
+ */
+
+
+
+#define LOG_CONF_LEVEL_TSCH                        0
+#define LOG_CONF_LEVEL_RPL                         0
+#define LOG_CONF_LEVEL_TCPIP                       0
+#define LOG_CONF_LEVEL_IPV6                        0
+#define LOG_CONF_LEVEL_6LOWPAN                     0
+#define LOG_CONF_LEVEL_MAC                         0
+#define LOG_CONF_LEVEL_FRAMER                      0
 #define TSCH_LOG_CONF_PER_SLOT                     0
         
 
