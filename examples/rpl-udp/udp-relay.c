@@ -16,7 +16,7 @@
 #define UDP_CLIENT_PORT 2222
 #define UDP_SERVER_PORT 1111
 
-#define SEND_INTERVAL (10 * CLOCK_SECOND)
+#define SEND_INTERVAL (5 * CLOCK_SECOND)
 
 static struct simple_udp_connection udp_conn;
 static uint32_t rx_count = 0;
@@ -137,6 +137,7 @@ void destroyQueue(Queue* queue) {
 PROCESS(udp_client_process, "UDP client");
 AUTOSTART_PROCESSES(&udp_client_process);
 /*---------------------------------------------------------------------------*/
+char str1[40]; // Make sure it's large enough to hold all RSSI values
 static void
 udp_rx_callback(struct simple_udp_connection *c,
                 const uip_ipaddr_t *sender_addr,
@@ -145,36 +146,48 @@ udp_rx_callback(struct simple_udp_connection *c,
                 uint16_t receiver_port,
                 const uint8_t *data,
                 uint16_t datalen) {
-    LOG_INFO_6ADDR(sender_addr);
-    char str1[40] = "s: "; // Make sure it's large enough to hold your string
-    char str2[30];
-    char str3[5] = " c: ";
-    char str4[30];
-    char str5[5] = "\n";
+    //LOG_INFO_6ADDR(sender_addr);
+
+    //Set start "s" character and finish "f" character, these will be used to check message is correct
+    char strs[5] = "s";
+    char strc[5] = "f";
+    char srssi = '0';
+    char crssi = '0';
 #if LLSEC802154_CONF_ENABLED
-    LOG_INFO_(" LLSEC LV:%d", uipbuf_get_attr(UIPBUF_ATTR_LLSEC_LEVEL));
+    //LOG_INFO_(" LLSEC LV:%d", uipbuf_get_attr(UIPBUF_ATTR_LLSEC_LEVEL));
 #endif
     server_RSSI= (int16_t)uipbuf_get_attr(UIPBUF_ATTR_RSSI);
-    sprintf(str2, "%d", server_RSSI);
     if(*data==1){
         client_RSSI= *data;
-        sprintf(str4, "%d", client_RSSI);
-        LOG_INFO_("\n");
     }
     else{
         client_RSSI=*data| -256;
     }
-    strcat(str1, str2); // Append str2 to str1
-    strcat(str1, str3);
-    strcat(str1, str4);
-    strcat(str1, str5);
+    //Takes absolute value of RSSI and converts to char, this gives us the RSSi range of 0-255
+    srssi = abs(server_RSSI);
+    crssi = abs(client_RSSI);
+
+    //Hard coded send over uart
+    //cc26xx_uart_write_byte(115);
+    //cc26xx_uart_write_byte(srssi);
+    //cc26xx_uart_write_byte(99);
+    //cc26xx_uart_write_byte(crssi);
+
+
+    //Concatenate all strings together & add to queue
+    strcat(str1, strs);
+    strncat(str1, &srssi, 1);
+    //strcat(str1, str3);
+    strncat(str1, &crssi, 1);
+    strcat(str1, strc);
     enqueue(queue, str1);
+    str1[0] = '\0';
 
     rx_count++;
 }
 int i = 0;
 int length = 0;
-const char* message = NULL;
+char* message = NULL;
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_client_process, ev, data) {
     static struct etimer periodic_timer;
@@ -193,7 +206,7 @@ PROCESS_THREAD(udp_client_process, ev, data) {
     /* Set the transmission power level to -12 dBm */
     radio_value_t power_level;
     NETSTACK_RADIO.get_value(RADIO_PARAM_TXPOWER, &power_level);
-    radio_value_t new_power_level = power_level + (radio_value_t) RADIO_OFFSET;
+    radio_value_t new_power_level =(radio_value_t) RADIO_OFFSET;
     NETSTACK_RADIO.set_value(RADIO_PARAM_TXPOWER, new_power_level);
     /* Initialize UDP connection */
     simple_udp_register(&udp_conn, UDP_CLIENT_PORT, NULL,
@@ -204,20 +217,18 @@ PROCESS_THREAD(udp_client_process, ev, data) {
     while (1) {
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
 
-
-        //display(queue);
-        //printf("First element: %s\n", getFront(queue));
-
         // Define the string to be sent
-        message = getFront(queue);
-        length = strlen(message);
+        if( message == NULL) {
+            message = getFront(queue);
+            length = strlen(message);
+        }
 
         // Transmit each byte of the string over UART
-        if (isEmpty(queue)) {
-
-        } else {
+        while (!isEmpty(queue)) {
+            //printf("length is: %d \n", length);
             //printf("%s \n", message);
             for (i = 0; i < length; i++) {
+                //printf("s: %d\n", message[i]);
                 cc26xx_uart_write_byte(message[i]);
             }
             i = 0;
@@ -234,17 +245,20 @@ PROCESS_THREAD(udp_client_process, ev, data) {
             NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr)) {
             /* Print statistics every 10th TX */
             if (tx_count % 1 == 0) {
+                /*
                 LOG_INFO(" (relay) Tx/Rx/MissedTx: %" PRIu32 "/%" PRIu32 "/%" PRIu32 "\n",
                          tx_count, rx_count, missed_tx_count);
                 LOG_INFO("(relay) Server RSSI: %i ; Client RSSI: %i\n",server_RSSI,client_RSSI );
+                */
             }
 
-            /* Send to DAG root */ LOG_INFO("(relay) Sending request %" PRIu32 " to \n", tx_count);
-            LOG_INFO_6ADDR(&dest_ipaddr);
+            /* Send to DAG root */
+            //LOG_INFO("(relay) Sending request %" PRIu32 " to \n", tx_count);
+            //LOG_INFO_6ADDR(&dest_ipaddr);
             simple_udp_sendto(&udp_conn, &dummy, sizeof(dummy), &dest_ipaddr);
             tx_count++;
         } else {
-            LOG_INFO("(relay) Not reachable yet\n");
+            //LOG_INFO("(relay) Not reachable yet\n");
             if (tx_count > 0) {
                 missed_tx_count++;
             }
