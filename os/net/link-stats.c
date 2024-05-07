@@ -244,15 +244,8 @@ link_stats_input_callback(const linkaddr_t *lladdr)
     }
     stats->rssi = LINK_STATS_RSSI_UNKNOWN;
   }
-
-  if(stats->rssi == LINK_STATS_RSSI_UNKNOWN) {
-    /* Initialize RSSI */
-    stats->rssi = packet_rssi;
-  } else {
-    /* Update RSSI EWMA */
-    stats->rssi = ((int32_t)stats->rssi * (EWMA_SCALE - EWMA_ALPHA) +
-        (int32_t)packet_rssi * EWMA_ALPHA) / EWMA_SCALE;
-  }
+  stats->rssi = packet_rssi;
+}
 
   if(stats->etx == 0) {
     /* Initialize ETX */
