@@ -245,7 +245,7 @@ link_stats_input_callback(const linkaddr_t *lladdr)
     stats->rssi = LINK_STATS_RSSI_UNKNOWN;
   }
   stats->rssi = packet_rssi;
-}
+
 
   if(stats->etx == 0) {
     /* Initialize ETX */
