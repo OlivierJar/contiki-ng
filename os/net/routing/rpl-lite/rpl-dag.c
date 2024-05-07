@@ -227,6 +227,7 @@ global_repair_non_root(rpl_dio_t *dio) {
     }
 }
 /*---------------------------------------------------------------------------*/
+
 void rpl_local_repair(const char *str) {
     if (curr_instance.used) { /* Check needed because this is a public function */
         LOG_WARN("local repair (%s)\n", str);
@@ -240,13 +241,14 @@ void rpl_local_repair(const char *str) {
     }
 }
 /*---------------------------------------------------------------------------*/
+int count=1;
 int16_t rpl_udp_parent_RSSI(){
     LOG_INFO_("BEFORE DECLARING PARENT");
     rpl_nbr_t *parent = curr_instance.dag.preferred_parent;
     LOG_INFO_("BEFORE IF");
-
     if(parent->rank == 128){
-
+        printf("%d,%d\n",count,rpl_neighbor_get_link_stats(parent)->rssi);
+        count+=1;
         return 1;
     }
     else{

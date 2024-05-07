@@ -155,6 +155,7 @@ udp_rx_callback(struct simple_udp_connection *c,
     LOG_INFO_(" LLSEC LV:%d", uipbuf_get_attr(UIPBUF_ATTR_LLSEC_LEVEL));
 #endif
     server_RSSI= (int16_t)uipbuf_get_attr(UIPBUF_ATTR_RSSI);
+    //NETSTACK_RADIO.get_value(RADIO_PARAM_LAST_RSSI,fewf)
     sprintf(str2, "%d", server_RSSI);
     if(*data==1){
         client_RSSI= *data;

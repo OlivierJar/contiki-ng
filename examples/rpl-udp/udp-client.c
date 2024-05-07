@@ -16,8 +16,8 @@
 #include "net/ipv6/uip-sr.h"
 #include "net/linkaddr.h"
 #define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_DBG
-
+#define LOG_LEVEL LOG_LEVEL_NONE
+//#define LOG_LEVEL LOG_LEVEL_NONE
 #define WITH_SERVER_REPLY 1
 #define UDP_CLIENT_PORT 2222
 #define UDP_SERVER_PORT 1111
@@ -69,11 +69,13 @@ PROCESS_THREAD(udp_client_process, ev, data) {
 
     etimer_set(&periodic_timer, random_rand() % SEND_INTERVAL);
 
-    /* Set the transmission power level to -12 dBm */
     radio_value_t power_level;
     NETSTACK_RADIO.get_value(RADIO_PARAM_TXPOWER, &power_level);
-    radio_value_t new_power_level = power_level + (radio_value_t) RADIO_OFFSET;
+//    radio_value_t new_power_level = power_level + (radio_value_t) RADIO_OFFSET;
+    radio_value_t new_power_level = (radio_value_t) RADIO_OFFSET;
+
     NETSTACK_RADIO.set_value(RADIO_PARAM_TXPOWER, new_power_level);
+    printf("THe min Radio value is %d \n",RADIO_CONST_TXPOWER_MIN);
     rpl_set_leaf_only(1);
     while (1) {
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
