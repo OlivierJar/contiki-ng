@@ -16,6 +16,7 @@
 #define UDP_CLIENT_PORT 2222
 #define UDP_SERVER_PORT 1111
 
+//Set how often queue is checked and sent over interface, time in seconds
 #define SEND_INTERVAL (5 * CLOCK_SECOND)
 
 static struct simple_udp_connection udp_conn;
@@ -34,6 +35,7 @@ int16_t client_RSSI=1;
 
 // Define the structure of a queue node
 typedef struct {
+    //Max size of string in queue
     char data[100];
 } QueueNode;
 
@@ -217,14 +219,12 @@ PROCESS_THREAD(udp_client_process, ev, data) {
     while (1) {
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
 
-        // Define the string to be sent
-        if( message == NULL) {
-            message = getFront(queue);
-            length = strlen(message);
-        }
-
         // Transmit each byte of the string over UART
         while (!isEmpty(queue)) {
+            // Define the string to be sent
+            message = getFront(queue);
+            length = strlen(message);
+
             //printf("length is: %d \n", length);
             //printf("%s \n", message);
             for (i = 0; i < length; i++) {
