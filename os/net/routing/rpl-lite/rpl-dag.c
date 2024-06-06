@@ -61,7 +61,7 @@ rpl_get_ds6_nbr(rpl_nbr_t *nbr) {
 /* Log configuration */
 #include "sys/log.h"
 #define LOG_MODULE "RPL"
-#define LOG_LEVEL LOG_LEVEL_RPL
+#define LOG_LEVEL LOG_LEVEL_NONE
 
 /*---------------------------------------------------------------------------*/
 extern rpl_of_t rpl_of0, rpl_mrhof;
@@ -241,13 +241,13 @@ void rpl_local_repair(const char *str) {
     }
 }
 /*---------------------------------------------------------------------------*/
-int count=1;
+int count=0;
 int16_t rpl_udp_parent_RSSI(){
     LOG_INFO_("BEFORE DECLARING PARENT");
     rpl_nbr_t *parent = curr_instance.dag.preferred_parent;
     LOG_INFO_("BEFORE IF");
     if(parent->rank == 128){
-        printf("%d,%d\n",count,rpl_neighbor_get_link_stats(parent)->rssi);
+        printf("%d,%d,0,",count,rpl_neighbor_get_link_stats(parent)->rssi);
         count+=1;
         return 1;
     }
@@ -255,6 +255,20 @@ int16_t rpl_udp_parent_RSSI(){
         LOG_INFO_("BEFORE RSSI");
 
         int16_t parent_rssi = rpl_neighbor_get_link_stats(parent)->rssi;
+
+        rpl_nbr_t *server_nbr;
+
+        server_nbr = nbr_table_head(rpl_neighbors);
+
+        while (server_nbr != NULL) {
+            if (server_nbr->rank==128) {
+                break;
+            }
+            server_nbr = nbr_table_next(rpl_neighbors, server_nbr);
+        }
+        printf("%d,%d,1,",count,rpl_neighbor_get_link_stats(server_nbr)->rssi);
+        count+=1;
+
         return parent_rssi;
     }
 
@@ -323,7 +337,7 @@ int rpl_dag_activate_relay(const char *str) {
         }
         char buf[120];
         rpl_neighbor_snprint(buf, sizeof(buf), parent);
-        LOG_WARN("prefered parent: %s \n with RSSI: %d \n with rank: %d \n acceptable: %d \n, NUD: %d  \n",
+        LOG_WARN("prefered parent: %s \n with RSSI: %d \n with rank: %d \n acceptable: %d \n NUD: %d  \n",
                  buf, parent_rssi, parent->rank, rpl_neighbor_is_acceptable_parent(parent), (rpl_get_ds6_nbr(parent) == NULL));
         rpl_nbr_t *nbr;
         if ((rpl_get_ds6_nbr(parent) == NULL))
@@ -341,7 +355,7 @@ int rpl_dag_activate_relay(const char *str) {
                     LOG_WARN("Changing parent to: %s \n", buf);
                     rpl_neighbor_set_preferred_parent(nbr);  // setting new parrent
                     // curr_instance.dag.preferred_parent = nbr;
-                    // relay_inactive = false;
+                    relay_inactive = 0;
                     return 1;
                 }
             }

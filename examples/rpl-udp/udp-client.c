@@ -70,12 +70,23 @@ PROCESS_THREAD(udp_client_process, ev, data) {
     etimer_set(&periodic_timer, random_rand() % SEND_INTERVAL);
 
     radio_value_t power_level;
+    radio_value_t power_min;
+    radio_value_t power_max;
+
     NETSTACK_RADIO.get_value(RADIO_PARAM_TXPOWER, &power_level);
+    NETSTACK_RADIO.get_value(RADIO_CONST_TXPOWER_MAX,&power_max);
+    NETSTACK_RADIO.get_value(RADIO_CONST_TXPOWER_MIN,&power_min);
+
+    printf("Default TX value is %d \n",power_level);
 //    radio_value_t new_power_level = power_level + (radio_value_t) RADIO_OFFSET;
     radio_value_t new_power_level = (radio_value_t) RADIO_OFFSET;
 
     NETSTACK_RADIO.set_value(RADIO_PARAM_TXPOWER, new_power_level);
-    printf("THe min Radio value is %d \n",RADIO_CONST_TXPOWER_MIN);
+    printf("THe min Radio value is %d \n",power_min);
+    printf("THe max Radio value is %d \n",power_max);
+    printf("THe new Radio value is %d \n",new_power_level);
+
+
     rpl_set_leaf_only(1);
     while (1) {
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
@@ -87,8 +98,7 @@ PROCESS_THREAD(udp_client_process, ev, data) {
             LOG_INFO("Loged RSSI is: %i\n",relay_RSSI);
 
             if (tx_count % 1 == 0) {
-                LOG_WARN("Tx/Rx/MissedTx: %" PRIu32 "/%" PRIu32 "/%" PRIu32 "\n",
-                         tx_count, rx_count, missed_tx_count);
+                printf("%" PRIu32 ",%" PRIu32 ",%" PRIu32 "\n", tx_count, rx_count, missed_tx_count);//tx rx Missed
                 automatic_relay_switch();
                 //relay_RSSI+=1;
             }
