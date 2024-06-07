@@ -1,0 +1,27 @@
+This file contains the Raw data of the multiple experiments contained in the Thesis "Reliable IoT networks utilizing 
+UAVs" by Casper Sonne, Viktor Egesby and Olivier Jarrosson.
+
+The only modification the data has had outside of the attached "plotter.py" file is removing remenants of previous 
+experiments as well as removing rows of measurement taken before both the node and relay are connected.
+
+Description of the files:
+
+-RelayCal.txt		File containing the calibration of the 1 meter measurement for the second iteration 
+			experiment of the next 3 files
+
+-Drone.txt		Drone perspective of the second iteration of the evaluation experiment, containing RSSI 
+			relay->node, relay->root, aswell as the calculated distance from said RSSI values 
+		
+-puttyWith.txt		Node perspective of the second iteration of the evaluation experiment, paired with 
+			Drone.txt makes a whole set of data of the experiment, it contains package delivery 
+			values as well of the RSSI between Node and Root
+
+-puttyNo.txt		Section of the experiment of the second iteration of the evaluation experiment, regarding the 
+			base case of the relay not being involved to compare the data obtained from the previous files
+
+
+-Drone_TX-21.txt	Similar to Drone.txt but regarding the 3rd iteration of the experiment
+-TX-21_puttyNo.txt	Similar to puttyNo.txt but regarding the 3rd iteration of the experiment
+-TX-21_puttyWith.txt	Similar to puttyWith.txt but regarding the 3rd iteration of the experiment
+
+
